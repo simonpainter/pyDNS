@@ -77,3 +77,55 @@ def parsequestion(question):
     QTYPE = question[y:y+2]
     QCLASS = question[y+2:y+4]
     return {'QNAME':QNAME,'QTYPE':QTYPE,'QCLASS':QCLASS}
+
+
+#DNS RR response
+'''
+                                    1  1  1  1  1  1
+      0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      ID                       |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |QR|   Opcode  |AA|TC|RD|RA|   Z    |   RCODE   |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    QDCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    ANCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    NSCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                    ARCOUNT                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+
+                                    1  1  1  1  1  1
+      0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                                               |
+    /                                               /
+    /                      NAME                     /
+    |                                               |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      TYPE                     |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                     CLASS                     |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                      TTL                      |
+    |                                               |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+    |                   RDLENGTH                    |
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--|
+    /                     RDATA                     /
+    /                                               /
+    +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+'''
+def buildresponse(Q):
+    #set the flag for a response
+    Q['QR']=1
+    #set the flag for an NXDOMAIN - for testing
+    Q['RCODE']=3
+    TransactionID = (Q['ID'])
+    Flags1 = (Q['QR']<<7 | Q['Opcode']<<3 | Q['AA']<<2 | Q['TC']<<1 | Q['RD'])
+    Flags2 = (Q['RA']<<7 | Q['Z']<<4 | Q['RCODE'])
+    header = TransactionID + Flags1.to_bytes(1, byteorder='big') + Flags2.to_bytes(1, byteorder='big')+Q['QDCOUNT'].to_bytes(2, byteorder='big')+Q['ANCOUNT'].to_bytes(2, byteorder='big')+Q['NSCOUNT'].to_bytes(2, byteorder='big')+Q['ARCOUNT'].to_bytes(2, byteorder='big')
+    print(header)
+    return header

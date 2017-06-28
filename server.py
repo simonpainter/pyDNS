@@ -21,4 +21,5 @@ while 1:
     question = data[12:]
     Q = pyDNS.parseheader(header)
     Q.update(pyDNS.parsequestion(question))
-    print(Q)
+    response = pyDNS.buildresponse(Q)
+    sock.sendto(response, addr)
