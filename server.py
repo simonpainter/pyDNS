@@ -5,7 +5,7 @@ import pyDNS
 import socket
 
 #set server variables
-serverIP=''
+serverIP='127.0.0.1'
 serverPORT = 53
 
 #Open the socket
@@ -19,5 +19,6 @@ while 1:
     data, addr = sock.recvfrom(512) # buffer size is 512 bytes
     header=data[:12]
     question = data[12:]
-    ID,QR,Opcode,AA,TC,RD,RA,Z,RCODE,QDCOUNT,ANCOUNT,NSCOUNT,ARCOUNT=pyDNS.parseheader(header)
-    QNAME,QTYPE,QCLASS = parsequestion(question)
+    Q = pyDNS.parseheader(header)
+    Q.update(pyDNS.parsequestion(question))
+    print(Q)

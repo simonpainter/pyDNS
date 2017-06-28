@@ -34,7 +34,7 @@ def parseheader(header):
 	ANCOUNT = ord(bytes(header[6:7]))*256 + ord(bytes(header[7:8]))
 	NSCOUNT = ord(bytes(header[8:9]))*256 + ord(bytes(header[9:10]))
 	ARCOUNT = ord(bytes(header[10:11]))*256 + ord(bytes(header[11:12]))
-	return ID, QR, Opcode, AA, TC, RD, RA, Z, RCODE,QDCOUNT, ANCOUNT, NSCOUNT, ARCOUNT
+	return {'ID':ID, 'QR':QR, 'Opcode':Opcode, 'AA':AA, 'TC':TC, 'RD':RD, 'RA':RA, 'Z':Z, 'RCODE':RCODE,'QDCOUNT':QDCOUNT,'ANCOUNT':ANCOUNT,'NSCOUNT':NSCOUNT,'ARCOUNT':ARCOUNT}
 
 #Parse the question
 '''
@@ -51,7 +51,29 @@ def parseheader(header):
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 '''
 def parsequestion(question):
-	QNAME=''
-	QTYPE=''
-	QCLASS=''
-	return QNAME,QTYPE,QCLASS
+    state = 0
+    expectedlength = 0
+    domainstring = ''
+    QNAME = []
+    x = 0
+    y = 0
+    for byte in question:
+        if state == 1:
+            if byte != 0:
+                domainstring += chr(byte)
+            x += 1
+            if x == expectedlength:
+                QNAME.append(domainstring)
+                domainstring = ''
+                state = 0
+                x = 0
+            if byte == 0:
+                break
+        else:
+            state = 1
+            expectedlength = byte
+        y += 1
+
+    QTYPE = question[y:y+2]
+    QCLASS = question[y+2:y+4]
+    return {'QNAME':QNAME,'QTYPE':QTYPE,'QCLASS':QCLASS}
