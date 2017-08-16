@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #import our modules
-import pyDNS
+from pyDNS import Query
 import socket
 
 #set server variables
@@ -17,9 +17,5 @@ sock.bind((serverIP, serverPORT))
 #loop through the query and the reply
 while 1:
     data, addr = sock.recvfrom(512) # buffer size is 512 bytes
-    header=data[:12]
-    question = data[12:]
-    Q = pyDNS.parseheader(header)
-    Q.update(pyDNS.parsequestion(question))
-    response = pyDNS.buildresponse(Q)
-    sock.sendto(response, addr)
+    Q = Query(data)
+    sock.sendto(Q.response(), addr)
