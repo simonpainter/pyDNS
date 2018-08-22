@@ -2,6 +2,12 @@ import socket
 import threading
 import time
 
+class Table:
+	def __init__(self):
+		pass
+	def get(self,FQDN):
+		return "192.168.0.1"
+
 class Server:
 	def __init__(self):
 		pass
@@ -52,7 +58,9 @@ class Query:
                 state = 1
                 expectedlength = byte
             y += 1
-        #Extract the type and class
+        #Extract the type and class and format FQDN
+        self.FQDN = '.'.join(self.QNAME)
+        self.NAME = self.question[:y]
         self.QTYPE = self.question[y:y+2]
         self.QCLASS = self.question[y+2:y+4]
 
@@ -73,12 +81,23 @@ class Query:
         return Flags1.to_bytes(1, byteorder='big') + Flags2.to_bytes(1, byteorder='big')
 
     def response(self):
+        t=Table()
         #set the flag for a response
         self.QR=1
         #set the flag for an NXDOMAIN and an empty answer - testing
         self.RCODE=3
         self.answer = bytearray()
-
-        #compile the header and return the header, question and answer
+        self.ip = t.get(self.FQDN)
+        if self.ip:
+                self.RDATA = bytes(map(int, self.ip.split('.')))
+                self.RCODE=0
+                self.ANCOUNT=1
+                self.NSCOUNT=0
+                self.ARCOUNT=1
+                self.TYPE = self.QTYPE
+                self.CLASS = self.QCLASS
+                self.TTL = 5
+                self.RDLENGTH = len(self.RDATA) 
+                self.answer = self.NAME + self.TYPE + self.CLASS + self.TTL.to_bytes(4, byteorder='big') + self.RDLENGTH.to_bytes(2, byteorder='big') + self.RDATA
         self.header = self.ID + self.compileflags() +self.QDCOUNT.to_bytes(2, byteorder='big')+self.ANCOUNT.to_bytes(2, byteorder='big')+self.NSCOUNT.to_bytes(2, byteorder='big')+self.ARCOUNT.to_bytes(2, byteorder='big')
         return self.header + self.question + self.answer
