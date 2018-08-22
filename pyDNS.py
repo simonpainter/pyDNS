@@ -1,3 +1,20 @@
+import socket
+import threading
+import time
+
+class Server:
+	def __init__(self):
+		pass
+	def worker(self,serverIP,serverPort):
+		sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+		sock.bind((serverIP, serverPort))
+		while 1:
+			data, addr = sock.recvfrom(512)
+			Q = Query(data)
+			sock.sendto(Q.response(), addr)
+	def start(self,serverIP,serverPort):
+		threading.Thread(target=self.worker, args=(serverIP,serverPort)).start()
+
 class Query:
     def __init__(self,Q):
         self.header = Q[:12]
