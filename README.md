@@ -2,7 +2,7 @@
 
 This is a library with a class for handling DNS requests and serving responses. It has been created mainly as an explanation of how a DNS request and response works for my own learning.
 
-'''
+```
 Header
                                     1  1  1  1  1  1
       0  1  2  3  4  5  6  7  8  9  0  1  2  3  4  5
@@ -70,4 +70,5 @@ DNS RR response
     /                     RDATA                     /
     /                                               /
     +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
-'''
+
+```
